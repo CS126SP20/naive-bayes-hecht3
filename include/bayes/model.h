@@ -45,8 +45,8 @@ class Model {
 public:
   friend std::istream &operator>>(std::istream &input, Model const &model);
   friend std::ostream &operator<<(std::ostream &output, Model const &model);
-  double CalculateProbability(std::fstream labels_file);
-  std::vector<int> ParseTrainingLabels(std::string file);
+  void CalculateProbabilities(std::istream &labels_file);
+  int* ParseTrainingLabels(const std::string labels_string);
   // The individual probabilities for each pixel for each class for
   // whether it's shaded or not.
   //

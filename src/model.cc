@@ -15,42 +15,44 @@ namespace bayes {
   std::istream &operator>>(std::istream &input, Model const &model) {
     // The following iterator was taken from
     // https://en.cppreference.com/w/cpp/iterator/istreambuf_iterator
-    std::string contents((std::istreambuf_iterator<char>(input)),
-                         std::istreambuf_iterator<char>());
     std::string model_string;
-    model_string.append(contents);
-    if (model_string.length() > kImageSize) {
-      for (int i = 0; i < model_string.length(); i+= kImageSize) {
-        Image image(model_string.substr(i, kImageSize));
+    std::string line;
+    while (std::getline(input, line)) {
+      std::istringstream iss(line);
+      model_string.append(iss.str());
+    }
+    if (model_string.length() > kImageSize * kImageSize) {
+      for (int i = 0; i < model_string.length(); i+= kImageSize * kImageSize) {
+        Image image(model_string.substr(i, kImageSize * kImageSize));
         image_list_.push_back(image);
       }
     }
     return input;
   }
 
-  std::vector<int> Model::ParseTrainingLabels(std::string labels_string) {
-    std::vector<int> labels;
-    for (int i = 0; i < labels_string.length(); i++) {
-      labels.push_back(labels_string[i]);
-    }
-    return labels;
+  int* Model::ParseTrainingLabels(const std::string labels_string) {
+//    const int num_labels = labels_string.length();
+//    int labels[num_labels];
+//    for (int i = 0; i < labels_string.length(); i++) {
+//      labels[i] = (int) (labels_string[i] - '0');
+//    }
+//    return labels;
   }
 
-  double Model::CalculateProbability(std::fstream labels_file) {
-    // The following iterator was taken from
-    // https://en.cppreference.com/w/cpp/iterator/istreambuf_iterator
-    std::string contents((std::istreambuf_iterator<char>(labels_file)),
-                         std::istreambuf_iterator<char>());
+  void Model::CalculateProbabilities(std::istream &labels_file) {
     std::string labels_string;
-    labels_string.append(contents);
+    std::string line;
+    while (std::getline(labels_file, line)) {
+      std::istringstream iss(line);
+      labels_string.append(iss.str());
+    }
     // Labels will have the same index as the contents of image list
-    std::vector<int> labels = ParseTrainingLabels(labels_string);
 
     std::map<int, int> class_occurrences;
     for (int i = 0; i < kNumClasses; i++) {
       class_occurrences.insert(std::make_pair(i, 0));
     }
-    for (int i = 0; i < labels.size(); i++) {
+    for (int i = 0; i < labels_string.size(); i++) {
       class_occurrences.find(i) -> second++;
     }
 
@@ -59,9 +61,9 @@ namespace bayes {
       for (int i = 0; i < kImageSize; i++) {
         for (int j = 0; j < kImageSize; j++) {
           if (image_list_[image].pixels_[i][j] == 0) {
-            shade_occurrences[i][j][labels[image]][kUnshadedIndex]++;
+            shade_occurrences[i][j][(int) labels_string[image] - '0'][kUnshadedIndex]++;
           } else if (image_list_[image].pixels_[i][j] == 1) {
-            shade_occurrences[i][j][labels[image]][kShadedIndex]++;
+            shade_occurrences[i][j][(int) labels_string[image] - '0'][kShadedIndex]++;
           }
         }
       }
