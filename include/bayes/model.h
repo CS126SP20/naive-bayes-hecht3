@@ -32,6 +32,9 @@ namespace bayes {
 constexpr size_t kNumClasses = 10;
 // Shaded or not shaded.
 constexpr size_t kNumShades = 2;
+// Laplace smoothing constant
+const double kLaplaceConstant = 5.0;
+const int kLaplaceDenomMultiplier = 2;
 
 /**
  * Represents a Naive Bayes classification model for determining the
@@ -42,6 +45,8 @@ class Model {
 public:
   friend std::istream &operator>>(std::istream &input, Model const &model);
   friend std::ostream &operator<<(std::ostream &output, Model const &model);
+  double CalculateProbability(std::fstream labels_file);
+  std::vector<int> ParseTrainingLabels(std::string file);
   // The individual probabilities for each pixel for each class for
   // whether it's shaded or not.
   //
