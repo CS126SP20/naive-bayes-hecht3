@@ -22,12 +22,11 @@ constexpr size_t kImageSize = 28;
 
 class Image {
 public:
-  friend std::istream &operator>>(std::istream &input, Image const &image);
-  friend std::ostream &operator<<(std::ostream &output, Image const &image);
+  Image(std::string img_string);
 
- public:
   int pixels_[kImageSize][kImageSize];
-  std::string as_string_;
+private:
+  std::string image_as_string_;
 };
 
 }  // namespace bayes

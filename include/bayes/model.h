@@ -6,6 +6,7 @@
 #include "image.h"
 
 #include <cstdlib>
+#include <vector>
 
 
 namespace bayes {
@@ -38,6 +39,9 @@ constexpr size_t kNumShades = 2;
  * white or black.
  */
 class Model {
+public:
+  friend std::istream &operator>>(std::istream &input, Model const &model);
+  friend std::ostream &operator<<(std::ostream &output, Model const &model);
   // The individual probabilities for each pixel for each class for
   // whether it's shaded or not.
   //
