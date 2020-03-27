@@ -27,8 +27,12 @@ int main(int argc, char** argv) {
     return EXIT_FAILURE;
   }
 
-  const std::string puncutation = FLAGS_happy ? "!" : ".";
+  // GetLine for the entire file in main to parse it to a string so that we can
+  // call the overloaded extraction operator on every 28 lines. Ideally we don't
+  // loop through the string twice...
 
-  std::cout << "Hello, " << FLAGS_name << puncutation << std::endl;
+  const std::string punctuation = FLAGS_happy ? "!" : ".";
+
+  std::cout << "Hello, " << FLAGS_name << punctuation << std::endl;
   return EXIT_SUCCESS;
 }

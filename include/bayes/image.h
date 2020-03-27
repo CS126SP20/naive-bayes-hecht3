@@ -4,6 +4,7 @@
 #define BAYES_IMAGE_H_
 
 #include <cstdlib>
+#include <istream>
 
 
 namespace bayes {
@@ -20,8 +21,13 @@ namespace bayes {
 constexpr size_t kImageSize = 28;
 
 class Image {
- private:
-  char pixels_[kImageSize][kImageSize];
+public:
+  friend std::istream &operator>>(std::istream &input, Image const &image);
+  friend std::ostream &operator<<(std::ostream &output, Image const &image);
+
+ public:
+  int pixels_[kImageSize][kImageSize];
+  std::string as_string_;
 };
 
 }  // namespace bayes
