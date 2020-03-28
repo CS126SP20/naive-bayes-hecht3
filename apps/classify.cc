@@ -19,6 +19,8 @@ DEFINE_string(training_images_file, "/home/connell/CLionProjects/naive-bayes-hec
   "The file containing the images to be used for training the classifier");
 DEFINE_string(training_labels_file, "/home/connell/CLionProjects/naive-bayes-hecht3/data/digitdata/traininglabels",
   "The file containing the labels to be used for training the classifier");
+DEFINE_string(training_target_file, "/home/connell/CLionProjects/naive-bayes-hecht3/data/TrainedModel.txt",
+              "The location to save the trained model");
 
 
 int main(int argc, char** argv) {
@@ -38,16 +40,18 @@ int main(int argc, char** argv) {
 
   const std::string punctuation = FLAGS_happy ? "!" : ".";
 
-  std::ifstream model_stream(FLAGS_training_images_file);
-  if (model_stream.fail()) {
+  std::ifstream model_in_stream(FLAGS_training_images_file);
+  std::ifstream label_stream(FLAGS_training_labels_file);
+  std::ofstream model_out_stream(FLAGS_training_target_file);
+  if (model_in_stream.fail() || label_stream.fail() || model_out_stream.fail()) {
     std::cout << "\nInvalid file" << std::endl;
   } else {
-    bayes::Model model;
-    std::istream& input_stream = model_stream;
-    input_stream >> model;
-    std::ifstream label_stream(FLAGS_training_labels_file);
+    std::istream& model_input = model_in_stream;
     std::istream& label_input = label_stream;
-    model.CalculateProbabilities(label_input);
+    bayes::Model model(label_input, model_input);
+
+    std::ostream& model_output = model_out_stream;
+    model_output << model;
   }
 
   std::cout << "Hello, " << FLAGS_name << punctuation << std::endl;

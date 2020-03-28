@@ -7,6 +7,7 @@
 
 #include <cstdlib>
 #include <vector>
+#include <fstream>
 
 
 namespace bayes {
@@ -40,10 +41,10 @@ constexpr size_t kNumShades = 2;
  */
 class Model {
 public:
-  friend std::istream &operator>>(std::istream &input, Model const &model);
+  Model(std::istream &labels_file, std::istream &train_file);
+
   friend std::ostream &operator<<(std::ostream &output, Model const &model);
-  void CalculateProbabilities(std::istream &labels_file);
-  int* ParseTrainingLabels(const std::string labels_string);
+  void CalculateProbabilities(std::string &labels_string);
   // The individual probabilities for each pixel for each class for
   // whether it's shaded or not.
   //

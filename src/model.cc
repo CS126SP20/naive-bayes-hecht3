@@ -9,6 +9,7 @@
 
 // Laplace smoothing constant
 std::vector<bayes::Image> image_list_;
+std::ofstream model_file("/home/connell/CLionProjects/naive-bayes-hecht3/data/TrainedModel.txt");
 
 namespace bayes {
   const int kUnshadedIndex = 0;
@@ -16,42 +17,31 @@ namespace bayes {
   const double kLaplaceConstant = 5.0;
   const int kLaplaceDenomMultiplier = 2;
 
-  std::istream &operator>>(std::istream &input, Model const &model) {
-    // The following iterator was taken from
-    // https://en.cppreference.com/w/cpp/iterator/istreambuf_iterator
-    std::string model_string;
-    std::string line;
-    while (std::getline(input, line)) {
-      std::istringstream iss(line);
-      model_string.append(iss.str());
-    }
-    if (model_string.length() > kImageSize * kImageSize) {
-      for (int i = 0; i < model_string.length(); i += kImageSize * kImageSize) {
-        Image image(model_string.substr(i, kImageSize * kImageSize));
-        image_list_.push_back(image);
+  std::ostream &operator<<(std::ostream &output, Model const &model) {
+    for (int i = 0; i < kImageSize; i++) {
+      for (int j = 0; j < kImageSize; j++) {
+        for (int c = 0; c < kNumClasses; c++) {
+          for (int s = 0; s < kNumShades; s++) {
+            std::string model_line = "";
+            model_line.append(std::to_string(i));
+            model_line.push_back(' ');
+            model_line.append(std::to_string(j));
+            model_line.push_back(' ');
+            model_line.append(std::to_string(c));
+            model_line.push_back(' ');
+            model_line.append(std::to_string(s));
+            model_line.push_back(' ');
+            model_line.append(std::to_string(model.probs_[i][j][c][s]));
+            model_line.push_back('\n');
+            output << model_line;
+          }
+        }
       }
     }
-    return input;
+    return output;
   }
 
-  int *Model::ParseTrainingLabels(const std::string labels_string) {
-//    const int num_labels = labels_string.length();
-//    int labels[num_labels];
-//    for (int i = 0; i < labels_string.length(); i++) {
-//      labels[i] = (int) (labels_string[i] - '0');
-//    }
-//    return labels;
-  }
-
-  void Model::CalculateProbabilities(std::istream &labels_file) {
-    std::string labels_string;
-    std::string line;
-    while (std::getline(labels_file, line)) {
-      std::istringstream iss(line);
-      labels_string.append(iss.str());
-    }
-    // Labels will have the same index as the contents of image list
-
+  void Model::CalculateProbabilities(std::string &labels_string) {
     std::map<int, int> class_occurrences;
     for (int i = 0; i < kNumClasses; i++) {
       class_occurrences.insert(std::make_pair(i, 0));
@@ -75,7 +65,6 @@ namespace bayes {
       }
     }
 
-    std::ofstream model_file("/home/connell/CLionProjects/naive-bayes-hecht3/data/TrainedModel.txt");
     for (int i = 0; i < kImageSize; i++) {
       for (int j = 0; j < kImageSize; j++) {
         for (int c = 0; c < kNumClasses; c++) {
@@ -85,18 +74,6 @@ namespace bayes {
               / (kLaplaceDenomMultiplier * kLaplaceConstant
                  + class_occurrences.at(c));
             probs_[i][j][c][s] = probability;
-            std::string model_line = "";
-            model_line.append(std::to_string(i));
-            model_line.push_back(' ');
-            model_line.append(std::to_string(j));
-            model_line.push_back(' ');
-            model_line.append(std::to_string(c));
-            model_line.push_back(' ');
-            model_line.append(std::to_string(s));
-            model_line.push_back(' ');
-            model_line.append(std::to_string(probability));
-            model_line.push_back((char) '\n');
-            model_file << model_line;
           }
         }
       }
@@ -105,3 +82,29 @@ namespace bayes {
 
 
 }  // namespace bayes
+
+bayes::Model::Model(std::istream &labels_file, std::istream &train_file) {
+  std::string model_string;
+  std::string train_line;
+  while (std::getline(train_file, train_line)) {
+    std::istringstream iss(train_line);
+    model_string.append(iss.str());
+  }
+  if (model_string.length() > kImageSize * kImageSize) {
+    for (int i = 0; i < model_string.length(); i += kImageSize * kImageSize) {
+      Image image(model_string.substr(i, kImageSize * kImageSize));
+      image_list_.push_back(image);
+    }
+  }
+
+  std::string labels_string;
+  std::string label_line;
+  while (std::getline(labels_file, label_line)) {
+    std::istringstream iss(label_line);
+    labels_string.append(iss.str());
+  }
+
+  CalculateProbabilities(labels_string);
+
+  // Labels will have the same index as the contents of image list
+}

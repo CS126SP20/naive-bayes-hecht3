@@ -7,19 +7,6 @@
 
 namespace bayes {
 
-
-
-  // Receives an image of length kImageSize and breaks it down into an array
-  // representing whether or not a pixel is filled in that particular spot of
-  // the image.
-  std::istream &operator>>(std::istream &input, Image &image) {
-    return input;
-  }
-
-  std::ostream &operator<<(std::ostream &output, Image const &image) {
-    return output;
-  }
-
 }  // namespace bayes
 
 // Receives an image of length kImageSize and breaks it down into an array
