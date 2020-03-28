@@ -3,17 +3,16 @@
 #include <bayes/model.h>
 #include <nlohmann/json.hpp>
 #include <sstream>
-#include <fstream>
 #include <map>
 #include <iostream>
 
-// Laplace smoothing constant
 std::vector<bayes::Image> image_list_;
-std::ofstream model_file("/home/connell/CLionProjects/naive-bayes-hecht3/data/TrainedModel.txt");
 
 namespace bayes {
   const int kUnshadedIndex = 0;
   const int kShadedIndex = 1;
+
+  // Laplace smoothing constant
   const double kLaplaceConstant = 5.0;
   const int kLaplaceDenomMultiplier = 2;
 

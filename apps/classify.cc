@@ -10,9 +10,6 @@
 #include <iostream>
 #include <fstream>
 
-
-// TODO(you): Change the code below for your project use case.
-
 DEFINE_string(name, "Clarice", "Your first name");
 DEFINE_bool(happy, false, "Whether the greeting is a happy greeting");
 DEFINE_string(training_images_file, "/home/connell/CLionProjects/naive-bayes-hecht3/data/digitdata/trainingimages",
@@ -43,6 +40,7 @@ int main(int argc, char** argv) {
   std::ifstream model_in_stream(FLAGS_training_images_file);
   std::ifstream label_stream(FLAGS_training_labels_file);
   std::ofstream model_out_stream(FLAGS_training_target_file);
+
   if (model_in_stream.fail() || label_stream.fail() || model_out_stream.fail()) {
     std::cout << "\nInvalid file" << std::endl;
   } else {
@@ -53,6 +51,14 @@ int main(int argc, char** argv) {
     std::ostream& model_output = model_out_stream;
     model_output << model;
   }
+
+  std::ifstream classify_model_in_stream(FLAGS_training_target_file);
+  std::ifstream classify_images_in_stream("/home/connell/CLionProjects/naive-bayes-hecht3/data/digitdata/testimages");
+  std::istream& classify_model_input = classify_model_in_stream;
+  std::istream& classify_images_input = classify_images_in_stream;
+
+
+  bayes::Classifier classifier(classify_model_input, classify_images_input);
 
   std::cout << "Hello, " << FLAGS_name << punctuation << std::endl;
   return EXIT_SUCCESS;

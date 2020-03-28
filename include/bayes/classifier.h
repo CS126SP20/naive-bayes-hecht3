@@ -4,8 +4,17 @@
 #define BAYES_CLASSIFIER_H_
 
 
-namespace bayes {
+#include <istream>
+#include <bayes/image.h>
+#include <bayes/model.h>
 
+namespace bayes {
+  class Classifier {
+  public:
+    Classifier(std::istream &model_file, std::istream &file_to_classify);
+  private:
+    double probs_logs_[kImageSize][kImageSize][kNumClasses][kNumShades];
+  };
 }  // namespace bayes
 
 #endif  // BAYES_CLASSIFIER_H_
