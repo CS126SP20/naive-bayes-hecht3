@@ -43,7 +43,6 @@ bayes::Classifier::Classifier(std::istream &model_file, std::istream &file_to_cl
       image_list_.push_back(image);
     }
   }
-
 }
 
 // Follwing function taken from
@@ -55,7 +54,44 @@ std::vector<double> split(const std::string& line) {
 
 // Returns a vector containing the classifications
 std::vector<int> bayes::Classifier::classify() {
-  for(int image = 0; image < image_list_.size(); image++) {
-
+  std::vector<int> classifications;
+  double posterior_probability[kNumClasses];
+  for (int image = 0; image < image_list_.size(); image++) {
+    std::fill_n(posterior_probability, kNumClasses, 0.0);
+    for (int c = 0; c < kNumClasses; c++) {
+      for (int i = 0; i < kImageSize; i++) {
+        for (int j = 0; j < kImageSize; j++) {
+          posterior_probability[c] += probs_logs_[i][j][c][image_list_[image].pixels_[i][j]];
+        }
+      }
+    }
+    double max = posterior_probability[0];
+    int index_of_max = 0;
+    for (int p = 0; p < kNumClasses; p++) {
+      if (posterior_probability[p] > max) {
+        max = posterior_probability[p];
+        index_of_max = p;
+      }
+    }
+    classifications.push_back(index_of_max);
   }
+  return classifications;
+}
+
+double bayes::Classifier::CalculateAccuracy(const std::vector<int> classifications, std::istream &labels_file) {
+  std::string labels_string;
+  std::string label_line;
+  while (std::getline(labels_file, label_line)) {
+    std::istringstream iss(label_line);
+    labels_string.append(iss.str());
+  }
+
+  int num_correct = 0;
+  for (int i = 0; i < labels_string.length(); i++) {
+    if (classifications[i] == ((int) labels_string[i] - '0')) {
+      num_correct++;
+    }
+  }
+  double percentage_correct = round(((double) num_correct / (double) labels_string.length()) * 100);
+  return percentage_correct;
 }

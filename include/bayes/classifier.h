@@ -12,12 +12,12 @@ namespace bayes {
   class Classifier {
   public:
     Classifier(std::istream &model_file, std::istream &file_to_classify);
+    std::vector<int> classify();
+    double CalculateAccuracy(std::vector<int> classifications, std::istream &labels_file);
   private:
     double probs_logs_[kImageSize][kImageSize][kNumClasses][kNumShades];
     std::vector<bayes::Image> image_list_;
     std::vector<double> priors_;
-
-    std::vector<int> classify();
   };
 }  // namespace bayes
 
