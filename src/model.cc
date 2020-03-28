@@ -6,7 +6,7 @@
 #include <map>
 #include <iostream>
 
-std::vector<bayes::Image> image_list_;
+std::vector<bayes::Image> image_list;
 
 namespace bayes {
   const int kUnshadedIndex = 0;
@@ -17,11 +17,16 @@ namespace bayes {
   const int kLaplaceDenomMultiplier = 2;
 
   std::ostream &operator<<(std::ostream &output, Model const &model) {
+    std::string model_line = "";
+    for (int i = 0; i < kNumClasses; i++) {
+      model_line.append(std::to_string(model.priors_[i]));
+      model_line.push_back('\n');
+    }
+
     for (int i = 0; i < kImageSize; i++) {
       for (int j = 0; j < kImageSize; j++) {
         for (int c = 0; c < kNumClasses; c++) {
           for (int s = 0; s < kNumShades; s++) {
-            std::string model_line = "";
             model_line.append(std::to_string(i));
             model_line.push_back(' ');
             model_line.append(std::to_string(j));
@@ -32,11 +37,12 @@ namespace bayes {
             model_line.push_back(' ');
             model_line.append(std::to_string(model.probs_[i][j][c][s]));
             model_line.push_back('\n');
-            output << model_line;
           }
         }
       }
     }
+
+    output << model_line;
     return output;
   }
 
@@ -48,12 +54,17 @@ namespace bayes {
     for (int i = 0; i < labels_string.size(); i++) {
       class_occurrences.find((int) (labels_string[i] - '0'))->second++;
     }
+    for (int i = 0; i < kNumClasses; i++) {
+      int a = class_occurrences.at(i);
+      int len = labels_string.length();
+      priors_[i] = ((double) class_occurrences.at(i) / (double) labels_string.length());
+    }
     int shade_occurrences[kImageSize][kImageSize][kNumClasses]
                                         [kNumShades] = {0};
-    for (int image = 0; image < image_list_.size(); image++) {
+    for (int image = 0; image < image_list.size(); image++) {
       for (int i = 0; i < kImageSize; i++) {
         for (int j = 0; j < kImageSize; j++) {
-          if (image_list_[image].pixels_[i][j] == 1) {
+          if (image_list[image].pixels_[i][j] == 1) {
             shade_occurrences[i][j][(int) labels_string[image] - '0']
             [kShadedIndex]++;
           } else /*if (image_list_[image].pixels_[i][j] == 0)*/ {
@@ -92,7 +103,7 @@ bayes::Model::Model(std::istream &labels_file, std::istream &train_file) {
   if (model_string.length() > kImageSize * kImageSize) {
     for (int i = 0; i < model_string.length(); i += kImageSize * kImageSize) {
       Image image(model_string.substr(i, kImageSize * kImageSize));
-      image_list_.push_back(image);
+      image_list.push_back(image);
     }
   }
 

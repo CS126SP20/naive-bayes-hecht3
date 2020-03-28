@@ -7,8 +7,6 @@
 
 std::vector<double> split(const std::string& line);
 
-std::vector<bayes::Image> image_list;
-
 const int kiIndex = 0;
 const int kjIndex = 1;
 const int kClassIndex = 2;
@@ -21,10 +19,16 @@ namespace bayes {
 
 bayes::Classifier::Classifier(std::istream &model_file, std::istream &file_to_classify) {
   std::string model_line;
+  int line_counter = 0;
   while (std::getline(model_file, model_line)) {
     std::vector<double> model_vec = split(model_line);
-    probs_logs_[(int) model_vec[kiIndex]][(int) model_vec[kjIndex]][(int) model_vec[kClassIndex]]
+    if (line_counter < kNumClasses) {
+      priors_.push_back(model_vec[0]);
+    } else {
+      probs_logs_[(int) model_vec[kiIndex]][(int) model_vec[kjIndex]][(int) model_vec[kClassIndex]]
       [(int) model_vec[kShadeIndex]] = log(model_vec[kProbIndex]);
+    }
+    line_counter++;
   }
 
   std::string classify_string;
@@ -36,9 +40,10 @@ bayes::Classifier::Classifier(std::istream &model_file, std::istream &file_to_cl
   if (classify_string.length() > kImageSize * kImageSize) {
     for (int i = 0; i < classify_string.length(); i += kImageSize * kImageSize) {
       Image image(classify_string.substr(i, kImageSize * kImageSize));
-      image_list.push_back(image);
+      image_list_.push_back(image);
     }
   }
+
 }
 
 // Follwing function taken from
@@ -46,4 +51,11 @@ bayes::Classifier::Classifier(std::istream &model_file, std::istream &file_to_cl
 std::vector<double> split(const std::string& line) {
   std::istringstream is(line);
   return std::vector<double>(std::istream_iterator<double>(is), std::istream_iterator<double>());
+}
+
+// Returns a vector containing the classifications
+std::vector<int> bayes::Classifier::classify() {
+  for(int image = 0; image < image_list_.size(); image++) {
+
+  }
 }

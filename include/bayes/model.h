@@ -55,6 +55,7 @@ namespace bayes {
     // [0][0] for class 0 is shaded.
    private:
     double probs_[kImageSize][kImageSize][kNumClasses][kNumShades];
+    double priors_[kNumClasses];
   };
 
 }  // namespace bayes
