@@ -32,9 +32,6 @@ namespace bayes {
 constexpr size_t kNumClasses = 10;
 // Shaded or not shaded.
 constexpr size_t kNumShades = 2;
-// Laplace smoothing constant
-const double kLaplaceConstant = 5.0;
-const int kLaplaceDenomMultiplier = 2;
 
 /**
  * Represents a Naive Bayes classification model for determining the

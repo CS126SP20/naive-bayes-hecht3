@@ -5,12 +5,16 @@
 #include <sstream>
 #include <fstream>
 #include <map>
+#include <iostream>
 
+// Laplace smoothing constant
 std::vector<bayes::Image> image_list_;
 
 namespace bayes {
   const int kUnshadedIndex = 0;
   const int kShadedIndex = 1;
+  const double kLaplaceConstant = 5.0;
+  const int kLaplaceDenomMultiplier = 2;
 
   std::istream &operator>>(std::istream &input, Model const &model) {
     // The following iterator was taken from
@@ -22,7 +26,7 @@ namespace bayes {
       model_string.append(iss.str());
     }
     if (model_string.length() > kImageSize * kImageSize) {
-      for (int i = 0; i < model_string.length(); i+= kImageSize * kImageSize) {
+      for (int i = 0; i < model_string.length(); i += kImageSize * kImageSize) {
         Image image(model_string.substr(i, kImageSize * kImageSize));
         image_list_.push_back(image);
       }
@@ -30,7 +34,7 @@ namespace bayes {
     return input;
   }
 
-  int* Model::ParseTrainingLabels(const std::string labels_string) {
+  int *Model::ParseTrainingLabels(const std::string labels_string) {
 //    const int num_labels = labels_string.length();
 //    int labels[num_labels];
 //    for (int i = 0; i < labels_string.length(); i++) {
@@ -53,31 +57,46 @@ namespace bayes {
       class_occurrences.insert(std::make_pair(i, 0));
     }
     for (int i = 0; i < labels_string.size(); i++) {
-      class_occurrences.find(i) -> second++;
+      class_occurrences.find((int) (labels_string[i] - '0'))->second++;
     }
-
-    int shade_occurrences[kImageSize][kImageSize][kNumClasses][kNumShades];
+    int shade_occurrences[kImageSize][kImageSize][kNumClasses]
+                                        [kNumShades] = {0};
     for (int image = 0; image < image_list_.size(); image++) {
       for (int i = 0; i < kImageSize; i++) {
         for (int j = 0; j < kImageSize; j++) {
-          if (image_list_[image].pixels_[i][j] == 0) {
-            shade_occurrences[i][j][(int) labels_string[image] - '0'][kUnshadedIndex]++;
-          } else if (image_list_[image].pixels_[i][j] == 1) {
-            shade_occurrences[i][j][(int) labels_string[image] - '0'][kShadedIndex]++;
+          if (image_list_[image].pixels_[i][j] == 1) {
+            shade_occurrences[i][j][(int) labels_string[image] - '0']
+            [kShadedIndex]++;
+          } else /*if (image_list_[image].pixels_[i][j] == 0)*/ {
+            shade_occurrences[i][j][(int) labels_string[image] - '0']
+            [kUnshadedIndex]++;
           }
         }
       }
     }
 
+    std::ofstream model_file("/home/connell/CLionProjects/naive-bayes-hecht3/data/TrainedModel.txt");
     for (int i = 0; i < kImageSize; i++) {
       for (int j = 0; j < kImageSize; j++) {
         for (int c = 0; c < kNumClasses; c++) {
           for (int s = 0; s < kNumShades; s++) {
             double probability =
               (kLaplaceConstant + shade_occurrences[i][j][c][s])
-            / (kLaplaceDenomMultiplier * kLaplaceConstant
-                + class_occurrences.at(c));
+              / (kLaplaceDenomMultiplier * kLaplaceConstant
+                 + class_occurrences.at(c));
             probs_[i][j][c][s] = probability;
+            std::string model_line = "";
+            model_line.append(std::to_string(i));
+            model_line.push_back(' ');
+            model_line.append(std::to_string(j));
+            model_line.push_back(' ');
+            model_line.append(std::to_string(c));
+            model_line.push_back(' ');
+            model_line.append(std::to_string(s));
+            model_line.push_back(' ');
+            model_line.append(std::to_string(probability));
+            model_line.push_back((char) '\n');
+            model_file << model_line;
           }
         }
       }
