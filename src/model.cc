@@ -17,32 +17,32 @@ namespace bayes {
   const int kLaplaceDenomMultiplier = 2;
 
   std::ostream &operator<<(std::ostream &output, Model const &model) {
-    std::string model_line = "";
+    std::string model_string = "";
     for (int i = 0; i < kNumClasses; i++) {
-      model_line.append(std::to_string(model.priors_[i]));
-      model_line.push_back('\n');
+      model_string.append(std::to_string(model.priors_[i]));
+      model_string.push_back('\n');
     }
 
     for (int i = 0; i < kImageSize; i++) {
       for (int j = 0; j < kImageSize; j++) {
         for (int c = 0; c < kNumClasses; c++) {
           for (int s = 0; s < kNumShades; s++) {
-            model_line.append(std::to_string(i));
-            model_line.push_back(' ');
-            model_line.append(std::to_string(j));
-            model_line.push_back(' ');
-            model_line.append(std::to_string(c));
-            model_line.push_back(' ');
-            model_line.append(std::to_string(s));
-            model_line.push_back(' ');
-            model_line.append(std::to_string(model.probs_[i][j][c][s]));
-            model_line.push_back('\n');
+            model_string.append(std::to_string(i));
+            model_string.push_back(' ');
+            model_string.append(std::to_string(j));
+            model_string.push_back(' ');
+            model_string.append(std::to_string(c));
+            model_string.push_back(' ');
+            model_string.append(std::to_string(s));
+            model_string.push_back(' ');
+            model_string.append(std::to_string(model.probs_[i][j][c][s]));
+            model_string.push_back('\n');
           }
         }
       }
     }
 
-    output << model_line;
+    output << model_string;
     return output;
   }
 

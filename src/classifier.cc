@@ -78,7 +78,9 @@ std::vector<int> bayes::Classifier::classify() {
   return classifications;
 }
 
-double bayes::Classifier::CalculateAccuracy(const std::vector<int> classifications, std::istream &labels_file) {
+double bayes::Classifier::CalculateAccuracy(
+  const std::vector<int> classifications, std::istream &labels_file) {
+
   std::string labels_string;
   std::string label_line;
   while (std::getline(labels_file, label_line)) {
@@ -94,4 +96,17 @@ double bayes::Classifier::CalculateAccuracy(const std::vector<int> classificatio
   }
   double percentage_correct = round(((double) num_correct / (double) labels_string.length()) * 100);
   return percentage_correct;
+}
+
+void
+bayes::Classifier::SaveClassifications(std::ostream &classifications_file,
+  std::vector<int> classifications) {
+
+  std::string classifcations_string;
+  for (int i = 0; i < kNumClasses; i++) {
+    classifcations_string.append(std::to_string(classifications[i]));
+    classifcations_string.push_back('\n');
+  }
+
+  classifications_file << classifcations_string;
 }
