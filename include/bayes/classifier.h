@@ -13,9 +13,11 @@ namespace bayes {
   public:
     Classifier(std::istream &model_file, std::istream &file_to_classify);
     std::vector<int> classify();
-    double CalculateAccuracy(std::vector<int> classifications, std::istream &labels_file);
+    double CalculateAccuracy(const std::vector<int> &classifications,
+      std::istream &labels_file);
     void SaveClassifications(std::ostream &classifications_file,
       std::vector<int> classifications);
+    std::vector<Image> GetImageList();
   private:
     double probs_logs_[kImageSize][kImageSize][kNumClasses][kNumShades];
     std::vector<bayes::Image> image_list_;

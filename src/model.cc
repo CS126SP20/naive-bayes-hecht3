@@ -15,9 +15,9 @@ namespace bayes {
   const int kLaplaceDenomMultiplier = 10;
 
   std::ostream &operator<<(std::ostream &output, Model const &model) {
-    std::string model_string = "";
-    for (int i = 0; i < kNumClasses; i++) {
-      model_string.append(std::to_string(model.priors_[i]));
+    std::string model_string;
+    for (double prior : model.priors_) {
+      model_string.append(std::to_string(prior));
       model_string.push_back('\n');
     }
 
@@ -49,12 +49,10 @@ namespace bayes {
     for (int i = 0; i < kNumClasses; i++) {
       class_occurrences.insert(std::make_pair(i, 0));
     }
-    for (int i = 0; i < labels_string.size(); i++) {
-      class_occurrences.find((int) (labels_string[i] - '0'))->second++;
+    for (char label : labels_string) {
+      class_occurrences.find((int) (label - '0'))->second++;
     }
     for (int i = 0; i < kNumClasses; i++) {
-      int a = class_occurrences.at(i);
-      int len = labels_string.length();
       priors_[i] = ((double) class_occurrences.at(i) / (double) labels_string.length());
     }
     int shade_occurrences[kImageSize][kImageSize][kNumClasses]
@@ -65,7 +63,7 @@ namespace bayes {
           if (image_list_[image].pixels_[i][j] == 1) {
             shade_occurrences[i][j][(int) labels_string[image] - '0']
             [kShadedIndex]++;
-          } else /*if (image_list_[image].pixels_[i][j] == 0)*/ {
+          } else {
             shade_occurrences[i][j][(int) labels_string[image] - '0']
             [kUnshadedIndex]++;
           }

@@ -5,7 +5,7 @@
 #include <sstream>
 #include <iostream>
 
-std::vector<double> split(const std::string& line);
+std::vector<double> split(const std::string &line);
 
 const int kiIndex = 0;
 const int kjIndex = 1;
@@ -13,11 +13,9 @@ const int kClassIndex = 2;
 const int kShadeIndex = 3;
 const int kProbIndex = 4;
 
-namespace bayes {
-  
-}  // namespace bayes
+bayes::Classifier::Classifier(std::istream &model_file,
+                              std::istream &file_to_classify) {
 
-bayes::Classifier::Classifier(std::istream &model_file, std::istream &file_to_classify) {
   std::string model_line;
   int line_counter = 0;
   while (std::getline(model_file, model_line)) {
@@ -25,7 +23,10 @@ bayes::Classifier::Classifier(std::istream &model_file, std::istream &file_to_cl
     if (line_counter < kNumClasses) {
       priors_.push_back(model_vec[0]);
     } else {
-      probs_logs_[(int) model_vec[kiIndex]][(int) model_vec[kjIndex]][(int) model_vec[kClassIndex]]
+      probs_logs_
+      [(int) model_vec[kiIndex]]
+      [(int) model_vec[kjIndex]]
+      [(int) model_vec[kClassIndex]]
       [(int) model_vec[kShadeIndex]] = log(model_vec[kProbIndex]);
     }
     line_counter++;
@@ -38,7 +39,8 @@ bayes::Classifier::Classifier(std::istream &model_file, std::istream &file_to_cl
     classify_string.append(iss.str());
   }
   if (classify_string.length() > kImageSize * kImageSize) {
-    for (int i = 0; i < classify_string.length(); i += kImageSize * kImageSize) {
+    for (int i = 0;
+         i < classify_string.length(); i += kImageSize * kImageSize) {
       Image image(classify_string.substr(i, kImageSize * kImageSize));
       image_list_.push_back(image);
     }
@@ -47,21 +49,23 @@ bayes::Classifier::Classifier(std::istream &model_file, std::istream &file_to_cl
 
 // Follwing function taken from
 // https://codereview.stackexchange.com/questions/25212/input-reading-two-values-separated-by-whitespace-per-line
-std::vector<double> split(const std::string& line) {
+std::vector<double> split(const std::string &line) {
   std::istringstream is(line);
-  return std::vector<double>(std::istream_iterator<double>(is), std::istream_iterator<double>());
+  return std::vector<double>(std::istream_iterator<double>(is),
+                             std::istream_iterator<double>());
 }
 
 // Returns a vector containing the classifications
 std::vector<int> bayes::Classifier::classify() {
   std::vector<int> classifications;
   double posterior_probability[kNumClasses];
-  for (int image = 0; image < image_list_.size(); image++) {
+  for (Image image : image_list_) {
     std::fill_n(posterior_probability, kNumClasses, 0.0);
     for (int c = 0; c < kNumClasses; c++) {
       for (int i = 0; i < kImageSize; i++) {
         for (int j = 0; j < kImageSize; j++) {
-          posterior_probability[c] += probs_logs_[i][j][c][image_list_[image].pixels_[i][j]];
+          posterior_probability[c]
+            += probs_logs_[i][j][c][image.pixels_[i][j]];
         }
       }
     }
@@ -79,7 +83,7 @@ std::vector<int> bayes::Classifier::classify() {
 }
 
 double bayes::Classifier::CalculateAccuracy(
-  const std::vector<int> classifications, std::istream &labels_file) {
+  const std::vector<int> &classifications, std::istream &labels_file) {
 
   std::string labels_string;
   std::string label_line;
@@ -94,20 +98,27 @@ double bayes::Classifier::CalculateAccuracy(
       num_correct++;
     }
   }
-  double percentage_correct = round(((double) num_correct / (double) labels_string.length()) * 100);
+  double percentage_correct =
+    round(((double) num_correct / (double) labels_string.length()) * 100);
   return percentage_correct;
 }
 
 void
 bayes::Classifier::SaveClassifications(std::ostream &classifications_file,
-  std::vector<int> classifications) {
+                                       std::vector<int> classifications) {
 
   std::string classifications_string;
-  for (int i = 0; i < classifications.size(); i++) {
-    classifications_string.append(std::to_string(classifications[i]));
+  for (int classification : classifications) {
+    classifications_string.append(std::to_string(classification));
     classifications_string.push_back('\n');
   }
 
   classifications_file << classifications_string;
 }
+
+std::vector<bayes::Image> bayes::Classifier::GetImageList() {
+  return image_list_;
+}
+
+
 
