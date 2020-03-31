@@ -41,9 +41,9 @@ namespace bayes {
   class Model {
   public:
     Model(std::istream &labels_file, std::istream &train_file);
-
     friend std::ostream &operator<<(std::ostream &output, Model const &model);
     void CalculateProbabilities(std::string &labels_string);
+    std::vector<bayes::Image> GetImageList();
     // The individual probabilities for each pixel for each class for
     // whether it's shaded or not.
     //
@@ -56,7 +56,7 @@ namespace bayes {
    private:
     double probs_[kImageSize][kImageSize][kNumClasses][kNumShades];
     double priors_[kNumClasses];
-    std::vector<bayes::Image> image_list;
+    std::vector<bayes::Image> image_list_;
   };
 
 }  // namespace bayes

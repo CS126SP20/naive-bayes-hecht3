@@ -7,7 +7,7 @@
 // This is literally the only functionality of image (the constructor) so
 // all we need to do is test a 28x28 input and make sure the pixels array is
 // initial initialized properly.
-TEST_CASE("Initialization", "[constructor]") {
+TEST_CASE("Initialization", "[constructed array]") {
   bayes::Image image(" # + ++++++++++++++         "
                      " # + ++++++++++++++         "
                      " # + ++++++++++++++         "

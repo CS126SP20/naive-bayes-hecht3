@@ -59,10 +59,10 @@ namespace bayes {
     }
     int shade_occurrences[kImageSize][kImageSize][kNumClasses]
                                         [kNumShades] = {0};
-    for (int image = 0; image < image_list.size(); image++) {
+    for (int image = 0; image < image_list_.size(); image++) {
       for (int i = 0; i < kImageSize; i++) {
         for (int j = 0; j < kImageSize; j++) {
-          if (image_list[image].pixels_[i][j] == 1) {
+          if (image_list_[image].pixels_[i][j] == 1) {
             shade_occurrences[i][j][(int) labels_string[image] - '0']
             [kShadedIndex]++;
           } else /*if (image_list_[image].pixels_[i][j] == 0)*/ {
@@ -101,10 +101,10 @@ bayes::Model::Model(std::istream &labels_file, std::istream &train_file) {
   if (model_string.length() > kImageSize * kImageSize) {
     for (int i = 0; i < model_string.length(); i += kImageSize * kImageSize) {
       Image image(model_string.substr(i, kImageSize * kImageSize));
-      image_list.push_back(image);
+      image_list_.push_back(image);
     }
   }
-
+// Labels will have the same index as the contents of image list
   std::string labels_string;
   std::string label_line;
   while (std::getline(labels_file, label_line)) {
@@ -113,6 +113,8 @@ bayes::Model::Model(std::istream &labels_file, std::istream &train_file) {
   }
 
   CalculateProbabilities(labels_string);
+}
 
-  // Labels will have the same index as the contents of image list
+std::vector<bayes::Image> bayes::Model::GetImageList() {
+  return image_list_;
 }
