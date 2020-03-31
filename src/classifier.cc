@@ -5,19 +5,20 @@
 #include <sstream>
 #include <iostream>
 
-std::vector<double> split(const std::string &line);
-
 const int kiIndex = 0;
 const int kjIndex = 1;
 const int kClassIndex = 2;
 const int kShadeIndex = 3;
 const int kProbIndex = 4;
+const int kPercentageMultiplier = 100;
 
 bayes::Classifier::Classifier(std::istream &model_file,
                               std::istream &file_to_classify) {
 
   std::string model_line;
   int line_counter = 0;
+// The logs of the probabilities in the model file are stored in the same way
+// as the probabilities were stored in Model.cc
   while (std::getline(model_file, model_line)) {
     std::vector<double> model_vec = split(model_line);
     if (line_counter < kNumClasses) {
@@ -32,6 +33,8 @@ bayes::Classifier::Classifier(std::istream &model_file,
     line_counter++;
   }
 
+// Make the given classification txt into a string of characters and break them
+// up into Images of [kImageSize][kImageSize]
   std::string classify_string;
   std::string classify_line;
   while (std::getline(file_to_classify, classify_line)) {
@@ -49,21 +52,23 @@ bayes::Classifier::Classifier(std::istream &model_file,
 
 // Follwing function taken from
 // https://codereview.stackexchange.com/questions/25212/input-reading-two-values-separated-by-whitespace-per-line
-std::vector<double> split(const std::string &line) {
+std::vector<double> bayes::Classifier::split(const std::string &line) {
   std::istringstream is(line);
   return std::vector<double>(std::istream_iterator<double>(is),
                              std::istream_iterator<double>());
 }
 
-// Returns a vector containing the classifications
-std::vector<int> bayes::Classifier::classify() {
+std::vector<int> bayes::Classifier::Classify() {
   std::vector<int> classifications;
   double posterior_probability[kNumClasses];
   for (Image image : image_list_) {
+// Zero initialize array for every image just to be safe.
     std::fill_n(posterior_probability, kNumClasses, 0.0);
     for (int c = 0; c < kNumClasses; c++) {
       for (int i = 0; i < kImageSize; i++) {
         for (int j = 0; j < kImageSize; j++) {
+// Since we have the logs of the probabilities now, we can just add instead of
+// multiplying to prevent integer underflow.
           posterior_probability[c]
             += probs_logs_[i][j][c][image.pixels_[i][j]];
         }
@@ -71,6 +76,7 @@ std::vector<int> bayes::Classifier::classify() {
     }
     double max = posterior_probability[0];
     int index_of_max = 0;
+// Find the greatest posterior probability
     for (int p = 0; p < kNumClasses; p++) {
       if (posterior_probability[p] > max) {
         max = posterior_probability[p];
@@ -85,6 +91,7 @@ std::vector<int> bayes::Classifier::classify() {
 double bayes::Classifier::CalculateAccuracy(
   const std::vector<int> &classifications, std::istream &labels_file) {
 
+// Make a string containing the labels with no spaces or newlines
   std::string labels_string;
   std::string label_line;
   while (std::getline(labels_file, label_line)) {
@@ -92,6 +99,8 @@ double bayes::Classifier::CalculateAccuracy(
     labels_string.append(iss.str());
   }
 
+// Find the number of correct classifications and divide that by the total
+// total number of classifications
   int num_correct = 0;
   for (int i = 0; i < labels_string.length(); i++) {
     if (classifications[i] == ((int) labels_string[i] - '0')) {
@@ -99,13 +108,14 @@ double bayes::Classifier::CalculateAccuracy(
     }
   }
   double percentage_correct =
-    round(((double) num_correct / (double) labels_string.length()) * 100);
+    round(((double) num_correct
+           / (double) labels_string.length()) * kPercentageMultiplier);
   return percentage_correct;
 }
 
 void
 bayes::Classifier::SaveClassifications(std::ostream &classifications_file,
-                                       std::vector<int> classifications) {
+                                       const std::vector<int> &classifications) {
 
   std::string classifications_string;
   for (int classification : classifications) {

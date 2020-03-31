@@ -11,39 +11,60 @@
 
 namespace bayes {
 
-  /*
-   * We've given you a starter struct to represent the model.
-   * You are totally allowed to delete, change, move, rename, etc. this struct
-   * however you like! In fact, we encourage it! It only exists as a starting
-   * point of reference.
-   *
-   * In our probabilities array we have a final dimension [2], which represents
-   * the individual probabilities that a pixel for a class is either shaded or
-   * not shaded. Since the probability that a pixel is shaded is just
-   * (1 - probability not shaded), we COULD have deleted that final dimension
-   * (and you can do so if you want to), but we left it in so that you could
-   * see how the model would need to change if we were to keep track of the
-   * probability that a pixel is white vs. gray vs. dark gray vs. black.
-   *
-   * You can delete this comment once you're done with it.
-   */
-
-  // 0-9 inclusive.
+  /** 0-9 inclusive. */
   constexpr size_t kNumClasses = 10;
-  // Shaded or not shaded.
+  /** Shaded or not shaded. */
   constexpr size_t kNumShades = 2;
 
-  /**
+
+  // Represents a Naive Bayes classification model for determining the
+  // likelihood that an individual pixel for an individual class is
+  // white or black.
+
+ /**
    * Represents a Naive Bayes classification model for determining the
    * likelihood that an individual pixel for an individual class is
    * white or black.
    */
   class Model {
   public:
+
+  /**
+    * The constructor for the Model class. Initializes the array of images from
+    * the training file and calls on CalculateProbabilities to create the
+    * probabilities array
+    *
+    * @param labels_file the file containing the labels corresponding to the
+    *        provided images
+    * @param train_file the file containing the images to train the model on
+    */
     Model(std::istream &labels_file, std::istream &train_file);
-    friend std::ostream &operator<<(std::ostream &output, Model const &model);
-    void CalculateProbabilities(std::string &labels_string);
+
+
+  /**
+    * The overloaded insertion operator for a Model instance. Writes the model
+    * to a provided file.
+    *
+    * @param output the output to write to
+    * @param model the model instance
+    */
+    friend std::ostream &operator<<(std::ostream &output, const Model &model);
+
+  /**
+    * Called on by the constructor to calculate the probabilities for the model
+    *
+    * @param labels_string a string containing all the labels that correspond
+    *        to the training images
+    */
+    void CalculateProbabilities(const std::string &labels_string);
+
+  /**
+    * Basic getter for the image list used for testing
+    *
+    * @return the list of images made by the constructor
+    */
     std::vector<bayes::Image> GetImageList();
+
     // The individual probabilities for each pixel for each class for
     // whether it's shaded or not.
     //
@@ -53,9 +74,26 @@ namespace bayes {
     //
     // probs[0][0][0][1] is the computed probability that a pixel at
     // [0][0] for class 0 is shaded.
-   private:
+  private:
+
+  /**
+    * The individual probabilities for each pixel for each class for
+    * whether it's shaded or not.
+    * Examples:
+    * probs[2][10][7][0] is the computed probability that a pixel at
+    * [2][10] for class 7 is not shaded.
+    * probs[0][0][0][1] is the computed probability that a pixel at
+    * [0][0] for class 0 is shaded.
+    */
     double probs_[kImageSize][kImageSize][kNumClasses][kNumShades];
+
+    /**
+    * The array containing priors for each class.
+    * Array index corresponds to the class.
+    */
     double priors_[kNumClasses];
+
+    /** The list of Images representing each image in the provided file */
     std::vector<bayes::Image> image_list_;
   };
 

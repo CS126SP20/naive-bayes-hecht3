@@ -31,6 +31,13 @@ DEFINE_string(classify_target_file,
               "The file containing labels for the images to be classified. "
               "Only used when testing accuracy");
 
+/**
+  * The main method for the image classifier. Determines whether a model will
+  * be trained and then classifies given images using a model. If no images
+  * are provided to be classified, the default images will be used.
+  *
+  * @return success status
+  */
 int main(int argc, char **argv) {
   gflags::SetUsageMessage(
     "Trains an image classifier and/or classifies given images. "
@@ -43,16 +50,21 @@ int main(int argc, char **argv) {
       && gflags::GetCommandLineFlagInfoOrDie("training_labels_file").is_default
       && gflags::GetCommandLineFlagInfoOrDie("training_target_file").is_default)
      || (!gflags::GetCommandLineFlagInfoOrDie("training_images_file").is_default
-      && !gflags::GetCommandLineFlagInfoOrDie("training_labels_file").is_default
-      && !gflags::GetCommandLineFlagInfoOrDie("training_target_file").is_default));
+         &&
+         !gflags::GetCommandLineFlagInfoOrDie("training_labels_file").is_default
+         && !gflags::GetCommandLineFlagInfoOrDie(
+      "training_target_file").is_default));
 
   // Excludes the classification labels file because that one isn't required
   bool none_or_all_required_classification_commands_provided =
     ((gflags::GetCommandLineFlagInfoOrDie("classify_images_file").is_default
       && gflags::GetCommandLineFlagInfoOrDie("classify_target_file").is_default)
      || (!gflags::GetCommandLineFlagInfoOrDie("classify_images_file").is_default
-      && !gflags::GetCommandLineFlagInfoOrDie("classify_target_file").is_default));
+         && !gflags::GetCommandLineFlagInfoOrDie(
+      "classify_target_file").is_default));
 
+  // If only some of the commands were provided for either training or
+  // classifying, return failure. Otherwise use the commands or use the defualts
   if (!none_or_all_training_commands_provided
       || !none_or_all_required_classification_commands_provided) {
     std::cerr << "If you would like to train a model, please provide "
@@ -72,8 +84,8 @@ int main(int argc, char **argv) {
     if (model_in_stream.fail()
         || label_stream.fail()
         || model_out_stream.fail()) {
-      std::cout << "\nOne or more provided model files was invalid"
-        << std::endl;
+      std::cout << "\nOne or more provided model files were invalid"
+                << std::endl;
       return EXIT_FAILURE;
     } else {
       std::istream &model_input = model_in_stream;
@@ -86,6 +98,9 @@ int main(int argc, char **argv) {
     }
   }
 
+  // If no commands were provided, default images will be classified.
+  // Accuracy will be reported when possible, which is only when a labels file
+  // was provided
   if (!FLAGS_classify_images_file.empty()
       && !FLAGS_classify_target_file.empty()) {
 
@@ -100,18 +115,16 @@ int main(int argc, char **argv) {
     if (classify_model_input.fail()
         || classify_images_input.fail()
         || classify_out_stream.fail()) {
-      std::cout << "\nOne or more provided classification files was invalid"
-        << std::endl;
+      std::cout << "\nOne or more provided classification files were invalid"
+                << std::endl;
       return EXIT_FAILURE;
     } else {
-      std::istream &model_input = model_in_stream;
       bayes::Classifier classifier(classify_model_input, classify_images_input);
-      std::vector<int> classifications = classifier.classify();
+      std::vector<int> classifications = classifier.Classify();
       classifier.SaveClassifications(classifications_output, classifications);
 
       if (!FLAGS_classify_labels_file.empty()) {
         std::ifstream classify_labels_in_stream(FLAGS_classify_labels_file);
-        std::istream &classify_labels_input = classify_labels_in_stream;
 
         if (classify_labels_in_stream.fail()) {
           std::cout << "\nThe classification labels input file was invalid"

@@ -9,24 +9,24 @@
 
 namespace bayes {
 
-/*
- * We've given you a starter class to represent an image.
- * You are totally allowed to delete, change, move, rename, etc. this class
- * however you like! In fact, we encourage it! It only exists as a starting
- * point of reference.
- *
- * You can delete this comment once you're done with it.
- */
-
 constexpr size_t kImageSize = 28;
 
 class Image {
 public:
-  Image(std::string img_string);
+/**
+  * The constructor for the Image class. Initializes an image containing an
+  * array of pixel representing whether or not a pixel is shaded
+  *
+  * @param img_string a string containing the pixels for the image of size
+  *        kImageSize * kImageSize
+  */
+  Image(const std::string &img_string);
 
+/**
+  * An array representing pixels. Values are 0 if the pixel is unshaded, 1
+  * if the pixel is shaded for the corresponding location [][].
+  */
   int pixels_[kImageSize][kImageSize];
-private:
-  std::string image_as_string_;
 };
 
 }  // namespace bayes
