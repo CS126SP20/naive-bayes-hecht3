@@ -56,6 +56,7 @@ namespace bayes {
    private:
     double probs_[kImageSize][kImageSize][kNumClasses][kNumShades];
     double priors_[kNumClasses];
+    std::vector<bayes::Image> image_list;
   };
 
 }  // namespace bayes

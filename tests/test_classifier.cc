@@ -7,6 +7,6 @@
 
 
 // TODO(you): Remove this unnecessary test case.
-TEST_CASE("Sanity Check", "[addition]") {
+TEST_CASE("Sanity Che", "[addition]") {
   REQUIRE(1 + 1 == 2);
 }

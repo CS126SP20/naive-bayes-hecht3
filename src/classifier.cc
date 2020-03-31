@@ -102,11 +102,12 @@ void
 bayes::Classifier::SaveClassifications(std::ostream &classifications_file,
   std::vector<int> classifications) {
 
-  std::string classifcations_string;
+  std::string classifications_string;
   for (int i = 0; i < classifications.size(); i++) {
-    classifcations_string.append(std::to_string(classifications[i]));
-    classifcations_string.push_back('\n');
+    classifications_string.append(std::to_string(classifications[i]));
+    classifications_string.push_back('\n');
   }
 
-  classifications_file << classifcations_string;
+  classifications_file << classifications_string;
 }
+

@@ -6,15 +6,13 @@
 #include <map>
 #include <iostream>
 
-std::vector<bayes::Image> image_list;
-
 namespace bayes {
   const int kUnshadedIndex = 0;
   const int kShadedIndex = 1;
 
   // Laplace smoothing constant
-  const double kLaplaceConstant = 5.0;
-  const int kLaplaceDenomMultiplier = 2;
+  const double kLaplaceConstant = 0.3;
+  const int kLaplaceDenomMultiplier = 10;
 
   std::ostream &operator<<(std::ostream &output, Model const &model) {
     std::string model_string = "";

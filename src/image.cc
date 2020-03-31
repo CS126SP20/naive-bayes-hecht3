@@ -3,6 +3,7 @@
 #include <bayes/image.h>
 #include <cmath>
 #include <bayes/model.h>
+#include <iostream>
 
 
 namespace bayes {
@@ -14,6 +15,10 @@ namespace bayes {
 // the image.
 bayes::Image::Image(std::string img_string) {
   image_as_string_ = img_string;
+  if (img_string.find_first_not_of("#+ ") != std::string::npos) {
+    std::cout << "One or more images contained invalid characters";
+    exit(1);
+  }
   for (int i = 0; i < kImageSize * kImageSize; i++) {
     if (image_as_string_[i] == ' ') {
       pixels_[(int) floor(i / kImageSize)][(int) i % kImageSize] = 0;

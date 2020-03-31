@@ -6,7 +6,7 @@ file(GLOB SOURCE_LIST CONFIGURE_DEPENDS
 
 # This target runs all of the tests.
 # Make sure CATCH_CONFIG_MAIN is only defined in one test file.
-add_executable(test-bayes ${SOURCE_LIST} test_image.cpp)
+add_executable(test-bayes ${SOURCE_LIST} test_image.cpp test_model.cpp)
 
 # We're using C++17 in the test
 target_compile_features(test-bayes PRIVATE cxx_std_17)

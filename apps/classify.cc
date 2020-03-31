@@ -46,7 +46,7 @@ int main(int argc, char **argv) {
       && !gflags::GetCommandLineFlagInfoOrDie("training_labels_file").is_default
       && !gflags::GetCommandLineFlagInfoOrDie("training_target_file").is_default));
 
-  // Excludes the classification labels file because that one isn't necessary
+  // Excludes the classification labels file because that one isn't required
   bool none_or_all_required_classification_commands_provided =
     ((gflags::GetCommandLineFlagInfoOrDie("classify_images_file").is_default
       && gflags::GetCommandLineFlagInfoOrDie("classify_target_file").is_default)
